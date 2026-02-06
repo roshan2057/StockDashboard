@@ -15,7 +15,7 @@ interface StockHistory {
   amount: number;
 }
 export const startCronJobs = () => {
-  cron.schedule("*/10 * * * * *", async () => {
+  cron.schedule("0 30 15 * * 0-4", async () => {
     const stocks = await getStocks();
     for (const stock of stocks) {
       handlePriceChange(stock);
