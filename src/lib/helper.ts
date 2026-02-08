@@ -42,3 +42,9 @@ export function getHoldingDays(buyDate: string): number {
 
   return diffDays;
 }
+
+export const isSameDay = (d1: Date | string, d2: Date | string) => {
+  const a = new Date(d1);
+  const b = new Date(d2);
+  return a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
+};

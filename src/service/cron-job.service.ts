@@ -2,6 +2,7 @@ import cron from "node-cron";
 import Stock from "../db/schema/stock.schema";
 import { fetchGet } from "../utils/fetchGet";
 import stockService from "./stock.service";
+import { isSameDay } from "../lib/helper";
 
 interface StockHistory {
   date: string;
@@ -24,9 +25,9 @@ export const updateAllStockPrices = async () => {
   try {
     const stocks = await stockService.getStocks();
     for (const stock of stocks) {
-      handlePriceChange(stock);
+      await handlePriceChange(stock);
     }
-    console.log("🔄 Stock prices updated at", new Date().toLocaleTimeString());
+    console.log("🔄 Stock prices updated at", new Date().toLocaleString());
   } catch (error) {
     console.error("❌ Error updating stock prices:", error);
   }
@@ -41,11 +42,21 @@ const handlePriceChange = async (stock: any) => {
     return;
   }
 
-  updateStockPrice(
-    stock._id,
-    latestLtpRecord.close!,
-    stock.lastPrice - latestLtpRecord.close!,
-  );
+  const newPrice = latestLtpRecord.ltp!;
+  const marketDate = latestLtpRecord.date;
+
+  let change: number | undefined = undefined;
+
+  const alreadyUpdatedForThisMarketDay = isSameDay(stock.updatedAt, marketDate);
+
+  const createdToday = isSameDay(stock.createdAt, marketDate);
+
+  if (!alreadyUpdatedForThisMarketDay) {
+    change = newPrice - stock.lastPrice;
+  } else if (createdToday && stock.change == null) {
+    change = newPrice - stock.lastPrice;
+  }
+  await updateStockPrice(stock._id, newPrice, change);
 };
 
 const getLTPFromChukul = async (symbol: string): Promise<StockHistory[]> => {
@@ -72,13 +83,16 @@ const getLTPFromChukul = async (symbol: string): Promise<StockHistory[]> => {
 const updateStockPrice = async (
   stockId: string,
   newPrice: number,
-  change: number,
+  change?: number | undefined,
 ) => {
   try {
-    await Stock.updateOne(
-      { _id: stockId },
-      { $set: { lastPrice: newPrice, change } },
-    );
+    const update: any = { lastPrice: newPrice };
+
+    if (change !== undefined) {
+      update.change = change;
+    }
+
+    await Stock.updateOne({ _id: stockId }, { $set: update });
   } catch (error) {
     console.error(`❌ Error updating stock price for ${stockId}:`, error);
   }
@@ -91,6 +105,7 @@ const getLatestLtpRecord = (data: StockHistory[]): StockHistory | null => {
   let latestTime = -Infinity;
 
   for (const item of data) {
+    if (item.ltp == null) continue;
     const time = new Date(item.date).getTime();
     if (isNaN(time)) continue; // ignore bad dates
 
