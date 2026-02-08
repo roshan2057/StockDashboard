@@ -1,0 +1,96 @@
+<%- include("partials/header", { title }) %>
+
+    <!-- Add Stock Modal -->
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-gray-900 w-full max-w-md rounded-xl p-6 relative">
+            <h2 class="text-xl text-white mb-4">Add Stock</h2>
+
+            <form id="addStockForm">
+                <div class="space-y-4">
+
+                    <!-- SYMBOL SEARCH -->
+                    <div class="relative">
+                        <input id="symbolSearch" placeholder="Search Symbol" name="symbol"
+                            class="w-full p-2 rounded bg-gray-800 text-white" onfocus="showDropdown()"
+                            oninput="handleSymbolInput(this.value)" />
+
+                        <ul id="symbolDropdown" class="absolute w-full bg-gray-800 max-h-40 overflow-y-auto hidden">
+                            <% stocks.forEach(s=> { %>
+                                <li onclick="selectStock('<%= s.symbol %>', '<%= s.name %>')"
+                                    class="p-2 hover:bg-gray-700 cursor-pointer text-[var(--text)]">
+                                    <b>
+                                        <%= s.symbol %>
+                                    </b> — <%= s.name %>
+                                </li>
+                                <% }) %>
+                        </ul>
+                    </div>
+
+                    <!-- NAME -->
+                    <input id="stockName" name="name" type="text" readonly class="w-full p-2 bg-gray-800 text-white" placeholder="Stock Name" />
+                    <!-- PRICE -->
+                    <input name="price" type="number" class="w-full p-2 bg-gray-800 text-white" placeholder="Buying Price" />
+
+                    <!-- QUANTITY -->
+                    <input name="quantity" type="number" class="w-full p-2 bg-gray-800 text-white" placeholder="No of Kitta" />
+
+                    <button onclick="saveStock()" class="bg-blue-600 px-4 py-2 rounded w-full">
+                        Save
+                    </button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showDropdown() {
+            document.getElementById("symbolDropdown").classList.remove("hidden");
+        }
+
+        function handleSymbolInput(value) {
+            const items = document.querySelectorAll("#symbolDropdown li");
+            value = value.toLowerCase();
+
+            items.forEach(li => {
+                li.style.display = li.innerText.toLowerCase().includes(value)
+                    ? "block"
+                    : "none";
+            });
+        }
+
+        function selectStock(symbol, name) {
+            document.getElementById("symbolSearch").value = symbol;
+            document.getElementById("stockName").value = name;
+            document.getElementById("symbolDropdown").classList.add("hidden");
+        }
+
+        async function saveStock() {
+            const form = document.getElementById("addStockForm");
+            const formData = new FormData(form);
+
+            const data = Object.fromEntries(formData.entries());
+            try {
+                const res = await fetch("/api/stock/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert("Stock saved ✅");
+                    window.location.href = "/";
+                } else {
+                    alert(result.message || "Failed to save stock ❌");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server error 🚨");
+            }
+        }
+    </script>
+
+
+    <%- include("partials/footer") %>

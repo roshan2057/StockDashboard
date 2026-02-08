@@ -22,4 +22,11 @@ app.set("views", viewsPath);
 app.use("/api", api);
 app.use("/", router);
 
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API endpoint not found",
+  });
+});
+
 export default app;

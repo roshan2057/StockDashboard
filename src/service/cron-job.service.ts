@@ -1,7 +1,7 @@
 import cron from "node-cron";
-import { getStocks } from "./stock.service";
-import { fetchGet } from "../utils/fetchGet";
 import Stock from "../db/schema/stock.schema";
+import { fetchGet } from "../utils/fetchGet";
+import stockService from "./stock.service";
 
 interface StockHistory {
   date: string;
@@ -15,15 +15,21 @@ interface StockHistory {
   amount: number;
 }
 export const startCronJobs = () => {
-  cron.schedule("0 30 15 * * 0-4", async () => {
-    const stocks = await getStocks();
+  cron.schedule("0 30 15 * * 0-4", async () => {});
+  updateAllStockPrices();
+  console.log("✅ Cron jobs started");
+};
+
+export const updateAllStockPrices = async () => {
+  try {
+    const stocks = await stockService.getStocks();
     for (const stock of stocks) {
       handlePriceChange(stock);
     }
     console.log("🔄 Stock prices updated at", new Date().toLocaleTimeString());
-  });
-
-  console.log("✅ Cron jobs started");
+  } catch (error) {
+    console.error("❌ Error updating stock prices:", error);
+  }
 };
 
 const handlePriceChange = async (stock: any) => {
@@ -37,8 +43,8 @@ const handlePriceChange = async (stock: any) => {
 
   updateStockPrice(
     stock._id,
-    latestLtpRecord.ltp!,
-    stock.lastPrice - latestLtpRecord.ltp!,
+    latestLtpRecord.close!,
+    stock.lastPrice - latestLtpRecord.close!,
   );
 };
 
@@ -56,7 +62,6 @@ const getLTPFromChukul = async (symbol: string): Promise<StockHistory[]> => {
         },
       },
     );
-    // console.log("📈 NTC Data:", data);
     return data;
   } catch (error) {
     console.error(`❌ Error fetching LTP for ${symbol}:`, error);
@@ -70,9 +75,9 @@ const updateStockPrice = async (
   change: number,
 ) => {
   try {
-   await Stock.updateOne(
+    await Stock.updateOne(
       { _id: stockId },
-      { $set: { lastPrice: newPrice, change } }
+      { $set: { lastPrice: newPrice, change } },
     );
   } catch (error) {
     console.error(`❌ Error updating stock price for ${stockId}:`, error);
@@ -80,12 +85,20 @@ const updateStockPrice = async (
 };
 
 const getLatestLtpRecord = (data: StockHistory[]): StockHistory | null => {
-  if (!data || data.length === 0) return null;
-  const sorted = data.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-  const latestWithLtp = sorted.find(
-    (item) => item.ltp !== undefined && item.ltp !== null,
-  );
-  return latestWithLtp || null;
+  if (!data?.length) return null;
+
+  let latest: StockHistory | null = null;
+  let latestTime = -Infinity;
+
+  for (const item of data) {
+    const time = new Date(item.date).getTime();
+    if (isNaN(time)) continue; // ignore bad dates
+
+    if (time > latestTime) {
+      latestTime = time;
+      latest = item;
+    }
+  }
+
+  return latest;
 };

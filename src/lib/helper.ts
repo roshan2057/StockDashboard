@@ -16,7 +16,7 @@ export function getProgressWidth(
 
 export function getMarkerPosition(
   stock: Record<string, any>,
-  value: number
+  value: number,
 ): string {
   const start = stock.stopLoss * 0.95;
   const end = stock.target2 * 1.04;
@@ -33,7 +33,12 @@ export function getHoldingDays(buyDate: string): number {
   }
 
   const today = new Date();
-  const diffTime = today.getTime() - buy.getTime(); // no need for Math.abs
+
+  buy.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = today.getTime() - buy.getTime();
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
-  return Math.ceil(diffDays);
+
+  return diffDays;
 }
