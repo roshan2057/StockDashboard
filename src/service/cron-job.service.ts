@@ -107,7 +107,7 @@ const getLatestLtpRecord = (data: StockHistory[]): StockHistory | null => {
   for (const item of data) {
     if (item.ltp == null) continue;
     const time = new Date(item.date).getTime();
-    if (isNaN(time)) continue; // ignore bad dates
+    if (isNaN(time)) continue;
 
     if (time > latestTime) {
       latestTime = time;

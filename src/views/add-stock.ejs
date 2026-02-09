@@ -1,8 +1,8 @@
 <%- include("partials/header", { title }) %>
 
     <!-- Add Stock Modal -->
-    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-gray-900 w-full max-w-md rounded-xl p-6 relative">
+    <div class="bg-gray-900 flex items-center justify-center h-screen">
+        <div class="bg-[var(--background)] w-full max-w-md rounded-xl p-6 relative">
             <h2 class="text-xl text-white mb-4">Add Stock</h2>
 
             <form id="addStockForm">
@@ -11,10 +11,10 @@
                     <!-- SYMBOL SEARCH -->
                     <div class="relative">
                         <input id="symbolSearch" placeholder="Search Symbol" name="symbol"
-                            class="w-full p-2 rounded bg-gray-800 text-white" onfocus="showDropdown()"
+                            class="w-full p-2 rounded bg-gray-700 text-white" onfocus="showDropdown()"
                             oninput="handleSymbolInput(this.value)" />
 
-                        <ul id="symbolDropdown" class="absolute w-full bg-gray-800 max-h-40 overflow-y-auto hidden">
+                        <ul id="symbolDropdown" class="absolute w-full bg-gray-700 max-h-40 overflow-y-auto hidden">
                             <% stocks.forEach(s=> { %>
                                 <li onclick="selectStock('<%= s.symbol %>', '<%= s.name %>')"
                                     class="p-2 hover:bg-gray-700 cursor-pointer text-[var(--text)]">
@@ -27,14 +27,14 @@
                     </div>
 
                     <!-- NAME -->
-                    <input id="stockName" name="name" type="text" readonly class="w-full p-2 bg-gray-800 text-white" placeholder="Stock Name" />
+                    <input id="stockName" name="name" type="text" readonly class="w-full p-2 bg-gray-700 text-white" placeholder="Stock Name" />
                     <!-- PRICE -->
-                    <input name="price" type="number" class="w-full p-2 bg-gray-800 text-white" placeholder="Buying Price" />
+                    <input name="price" type="number" class="w-full p-2 bg-gray-700 text-white" placeholder="Buying Price" />
 
                     <!-- QUANTITY -->
-                    <input name="quantity" type="number" class="w-full p-2 bg-gray-800 text-white" placeholder="No of Kitta" />
+                    <input name="quantity" type="number" class="w-full p-2 bg-gray-700 text-white" placeholder="No of Kitta" />
 
-                    <button onclick="saveStock()" class="bg-blue-600 px-4 py-2 rounded w-full">
+                    <button onclick="saveStock()" class="bg-blue-600 px-4 py-2 rounded w-full text-white hover:bg-blue-700">
                         Save
                     </button>
 

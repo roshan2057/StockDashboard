@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { addStock, updateLtp } from "../controller/api.controller";
+import { addStock, bulkDeleteStocks, updateLtp } from "../controller/api.controller";
 
 const api = Router();
 
 api.post("/stock/add", addStock);
-api.get("/update-ltp", updateLtp);
+api.post("/update-ltp", updateLtp);
+
+api.delete("/stocks/bulk-delete", bulkDeleteStocks);
 
 export default api;

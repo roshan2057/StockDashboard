@@ -1,27 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  
-  <title><%= title %></title>
+
+  <title>
+    <%= title %>
+  </title>
   <style>
-  :root {
-    --text: #dddddd;
-    --background: #1d293d;
-  }
-</style>
+    :root {
+      --text: #dddddd;
+      --background: #1d293d;
+    }
+  </style>
 
 </head>
+
 <body>
   <nav class="bg-[var(--background)] p-4">
     <div class="container mx-auto flex justify-between items-center">
-      <a href="/" class="text-white text-lg font-semibold">Stock Dashboard</a>
+      <a href="/" class="text-white text-lg font-semibold">Dashboard</a>
       <div>
-        <a href="/" class="text-gray-300 hover:text-white mx-2">Dashboard</a>
-        <a href="/api/update-ltp" class="text-gray-300 hover:text-white mx-2">Update LTP</a>
-        <a href="/add-stock" class="text-gray-300 hover:text-white mx-2">Add New Stock</a>
+        <!-- <a href="/" class="text-gray-300 hover:text-white mx-2">Dashboard</a> -->
+        <a href="/edit-stock" class="text-gray-300 hover:text-white mx-2">Delete</a>
+
+        <form action="/api/update-ltp" method="POST" class="inline">
+          <button type="submit" class="text-gray-300 hover:text-white mx-2">
+            Sync LTP
+          </button>
+        </form>
+
+        <a href="/add-stock" class="text-gray-300 hover:text-white mx-2">Add Stock</a>
       </div>
     </div>
   </nav>

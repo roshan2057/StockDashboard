@@ -1,0 +1,111 @@
+<%- include("partials/header", { title }) %>
+
+
+  <div class="p-6 text-white bg-gray-900 min-h-screen">
+
+    <!-- ACTION BAR -->
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-semibold">Stock List</h1>
+
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="overflow-x-auto bg-slate-700 rounded-xl shadow-lg">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-gray-300">
+          <tr>
+            <th class="p-4 text-left">
+              <input type="checkbox" id="selectAll" class="w-4 h-4">
+            </th>
+            <th class="p-4 text-left">Symbol</th>
+            <th class="p-4 text-left">Company</th>
+            <th class="p-4 text-left">Buy Price</th>
+            <th class="p-4 text-left">LTP</th>
+            <th class="p-4 text-left">Holding Days</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-800">
+
+          <% stocks.forEach(stock=> { %>
+            <tr class="hover:bg-gray-800/60">
+              <td class="p-4">
+                <input type="checkbox" class="rowCheckbox w-4 h-4" value="<%= stock._id %>">
+              </td>
+              <td class="p-4 font-semibold">
+                <%= stock.symbol %>
+              </td>
+              <td class="p-4">
+                <%= stock.name %>
+              </td>
+              <td class="p-4">Rs <%= stock.buyPrice %>
+              </td>
+              <td class="p-4">Rs <%= stock.lastPrice %>
+              </td>
+              <td class="p-4">
+                <%= stock.holdingDays %> days
+              </td>
+            </tr>
+            <% }) %>
+
+        </tbody>
+      </table>
+    </div>
+    <div class="w-full flex justify-end mt-4">
+      <button id="deleteSelected" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg disabled:opacity-40" disabled>
+        Delete Selected
+      </button>
+    </div>
+  </div>
+
+
+
+
+  <script>
+    const selectAll = document.getElementById("selectAll");
+    const checkboxes = document.querySelectorAll(".rowCheckbox");
+    const deleteBtn = document.getElementById("deleteSelected");
+
+    function updateDeleteBtn() {
+      const anyChecked = [...checkboxes].some(cb => cb.checked);
+      deleteBtn.disabled = !anyChecked;
+    }
+
+    // Select all
+    selectAll.addEventListener("change", () => {
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+      updateDeleteBtn();
+    });
+
+    // Individual checkbox change
+    checkboxes.forEach(cb => {
+      cb.addEventListener("change", updateDeleteBtn);
+    });
+
+    // Delete action
+    deleteBtn.addEventListener("click", async () => {
+      const selectedIds = [...checkboxes]
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+
+      if (!selectedIds.length) return;
+
+      if (!confirm("Delete selected stocks?")) return;
+
+      console.log("Deleting IDs:", JSON.stringify({ ids: selectedIds }));
+
+      await fetch("/api/stocks/bulk-delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds })
+      });
+
+      location.reload();
+    });
+  </script>
+
+
+
+
+  <%- include("partials/footer") %>

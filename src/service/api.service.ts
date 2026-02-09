@@ -25,6 +25,16 @@ class APIService {
       change: 0,
     };
   }
+
+  public async bulkDeleteStocks(ids: string[]) {
+    try {
+      await StockSchema.deleteMany({ _id: { $in: ids } });
+      return true;
+    } catch (error) {
+      console.error("Error deleting stocks:", error);
+      return false;
+    }
+  }
 }
 
 export default new APIService();

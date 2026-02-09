@@ -70,7 +70,7 @@
             <div class="relative w-full mt-10">
               <div class="relative w-full bg-slate-700 h-4 rounded-full mt-2">
                 <div class="bg-green-500 h-4 rounded-full" style="width: <%= stock.progressWidth %>%;"></div>
-               
+
                 <div class="text-sm">
                   <% stock.markers.forEach(marker=> { %>
                     <div class="absolute top-0 w-0.5 h-4 bg-<%= marker.color %>" style="left: <%= marker.position %>;">
@@ -126,4 +126,4 @@
     </div>
 
   </section>
-<%- include("partials/footer") %>
+  <%- include("partials/footer") %>
